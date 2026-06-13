@@ -34,5 +34,5 @@ jobs:
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        projectName: 'my-awesome-site' # Придумайте имя для проекта в Cloudflare
+        projectName: 'site1' # Придумайте имя для проекта в Cloudflare
         directory: 'public' # Папка, куда ваш скрипт сохраняет HTML
