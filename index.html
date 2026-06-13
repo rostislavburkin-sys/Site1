@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Тарифы — Таллин</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #0f1117;
+      --surface: #181c27;
+      --border:  #252a38;
+      --text:    #e4e8f0;
+      --muted:   #6b7280;
+      --accent:  #f5c842;
+      --blue:    #6ec6f5;
+      --orange:  #ff8c42;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 2.5rem 1rem 5rem;
+    }
+
+    /* ── шапка ── */
+    .page-header { max-width: 1000px; margin: 0 auto 3rem; }
+    .eyebrow {
+      font-size: .7rem; font-weight: 600; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: .45rem;
+    }
+    .page-title { font-size: 2.1rem; font-weight: 700; line-height: 1.15; }
+    .page-title span { color: var(--accent); }
+    .page-meta { margin-top: .55rem; font-size: .8rem; color: var(--muted); }
+
+    /* ── сетка секций ── */
+    .sections { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }
+
+    /* ── заголовок секции ── */
+    .section-head {
+      display: flex; align-items: baseline; gap: .75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: .75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-icon { font-size: 1.1rem; }
+    .section-title {
+      font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .section-src { margin-left: auto; font-size: .7rem; color: var(--border); }
+    .section-src a { color: var(--muted); text-decoration: underline dotted; }
+
+    /* ══ ЭЛЕКТРИЧЕСТВО ══ */
+    .elec-body { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    .elec-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem 1.8rem;
+      flex: 1; min-width: 170px;
+    }
+    .elec-label { font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
+    .elec-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.2rem; font-weight: 500; line-height: 1;
+    }
+    .elec-value.big { color: var(--accent); }
+    .elec-updated { margin-top: .9rem; font-size: .72rem; color: var(--muted); }
+
+    /* ══ ТОПЛИВО ══ */
+    .best-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .best-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.2rem 1.4rem;
+      display: flex; flex-direction: column; gap: .2rem;
+    }
+    .best-icon { font-size: 1.3rem; margin-bottom: .15rem; }
+    .best-fuel { font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .best-price {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.85rem; font-weight: 500; color: var(--text); line-height: 1;
+    }
+    .best-station { font-size: .73rem; color: var(--muted); margin-top: .1rem; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead th {
+      text-align: left; padding: .55rem 1rem;
+      font-size: .68rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(255,255,255,.025); }
+    td { padding: .8rem 1rem; vertical-align: middle; }
+    .fuel-label {
+      font-weight: 600; white-space: nowrap;
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .fuel-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .price-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .85rem; color: var(--muted); white-space: nowrap;
+    }
+    .price-val { color: var(--text); }
+    .best-price-cell .price-val { color: var(--accent); font-weight: 700; }
+    .badge {
+      display: inline-block; font-family: 'Inter', sans-serif;
+      font-size: .58rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase;
+      background: rgba(245,200,66,.14); color: var(--accent);
+      border-radius: 4px; padding: 1px 5px; margin-left: .35rem;
+      vertical-align: middle;
+    }
+
+    /* ══ ВОДА ══ */
+    .water-body {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem 1.5rem;
+      max-width: 380px;
+    }
+    .water-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: .45rem 0;
+    }
+    .wlabel { font-size: .85rem; color: var(--muted); }
+    .wvalue {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .95rem; color: var(--text);
+    }
+    .wvalue.accent { color: var(--blue); font-weight: 700; font-size: 1.1rem; }
+    .water-divider { border-top: 1px solid var(--border); margin: .35rem 0; }
+    .total-row .wlabel { color: var(--text); font-weight: 600; }
+
+    /* общие */
+    .unit { font-size: .72em; color: var(--muted); }
+    .footer {
+      max-width: 1000px; margin: 3rem auto 0;
+      font-size: .72rem; color: var(--muted);
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: .4rem;
+    }
+
+    @media (max-width: 600px) {
+      .elec-body { flex-direction: column; }
+      .best-grid { grid-template-columns: repeat(3, 1fr); gap: .6rem; }
+      .best-price { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="eyebrow">Таллин · Эстония</div>
+    <h1 class="page-title">Актуальные <span>тарифы</span></h1>
+    <p class="page-meta">Электричество, топливо и вода — данные на сегодня</p>
+  </div>
+
+  <div class="sections">
+
+    <!-- ── ЭЛЕКТРИЧЕСТВО ── -->
+    <section>
+      <div class="section-head">
+        <span class="section-icon">⚡</span>
+        <span class="section-title">Электричество</span>
+        <span class="section-src"><a href="https://dashboard.elering.ee" target="_blank">elering.ee</a></span>
+      </div>
+      <div class="elec-body">
+        <div class="elec-card">
+          <div class="elec-label">Биржевая цена NPS</div>
+          <div class="elec-value big">20.99<span class="unit"> €/МВт·ч</span></div>
+          <div class="elec-updated">Обновлено: 12.06.2026 22:45</div>
+        </div>
+        <div class="elec-card">
+          <div class="elec-label">За киловатт-час</div>
+          <div class="elec-value">0.0210<span class="unit"> €/кВт·ч</span></div>
+          <div class="elec-updated">Цена без НДС и сетевых сборов</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ТОПЛИВО ── -->
+    <section>
+      <div class="section-head">
+        <span class="section-icon">⛽</span>
+        <span class="section-title">Топливо · Таллин</span>
+        <span class="section-src">
+          Данные от LoginIn EnglishEesti keelesПо-РусскиCategoriesArea codesZip codesExchange ratesFuel pricesFuel prices 11/6/26Krooning HiiuPärnu mnt 327aAlexelaEhitajate tee 114cOlerexLaki 29Circle KSõpruse pst. 200b951.7611.7691.7691.759981.7661.8291.7691.819Diesel1.7011.7691.7691.759ReklaamStatisticsTerms of usePrivacy policy2026 ©Nobel Digital OÜ. All rights reserved.SearchCategoriesArea codesZip codesExchange ratesNobel Digital OÜReg. kood 10047161Pärnu mnt 31, 10119 Tallinne-post:info@1182.eeAstu läbi ·
+          <a href="https://www.1182.ee/fuelprices" target="_blank">1182.ee</a>
+        </span>
+      </div>
+      <div class="best-grid">
+          <div class="best-card">
+            <div class="best-icon">⛽</div>
+            <div class="best-fuel" style="color:#f5c842">95</div>
+            <div class="best-price">1.759<span class="unit"> €/л</span></div>
+            <div class="best-station">Circle K</div>
+          </div>
+          <div class="best-card">
+            <div class="best-icon">🔥</div>
+            <div class="best-fuel" style="color:#ff8c42">98</div>
+            <div class="best-price">1.766<span class="unit"> €/л</span></div>
+            <div class="best-station">Krooning Hiiu</div>
+          </div>
+          <div class="best-card">
+            <div class="best-icon">🛢️</div>
+            <div class="best-fuel" style="color:#6ec6f5">Diesel</div>
+            <div class="best-price">1.701<span class="unit"> €/л</span></div>
+            <div class="best-station">Krooning Hiiu</div>
+          </div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Топливо</th><th>Krooning Hiiu</th><th>Alexela</th><th>Olerex</th><th>Circle K</th></tr></thead>
+          <tbody><tr><td class="fuel-label">
+              <span class="fuel-dot" style="background:#f5c842"></span>95
+            </td><td class="price-cell"><span class="price-val">1.761</span> €</td><td class="price-cell"><span class="price-val">1.769</span> €</td><td class="price-cell"><span class="price-val">1.769</span> €</td><td class="price-cell best-price-cell"><span class="price-val">1.759</span> €<span class="badge">лучшая</span></td></tr>
+<tr><td class="fuel-label">
+              <span class="fuel-dot" style="background:#ff8c42"></span>98
+            </td><td class="price-cell best-price-cell"><span class="price-val">1.766</span> €<span class="badge">лучшая</span></td><td class="price-cell"><span class="price-val">1.829</span> €</td><td class="price-cell"><span class="price-val">1.769</span> €</td><td class="price-cell"><span class="price-val">1.819</span> €</td></tr>
+<tr><td class="fuel-label">
+              <span class="fuel-dot" style="background:#6ec6f5"></span>Diesel
+            </td><td class="price-cell best-price-cell"><span class="price-val">1.701</span> €<span class="badge">лучшая</span></td><td class="price-cell"><span class="price-val">1.769</span> €</td><td class="price-cell"><span class="price-val">1.769</span> €</td><td class="price-cell"><span class="price-val">1.759</span> €</td></tr>
+</tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── ВОДА ── -->
+    <section>
+      <div class="section-head">
+        <span class="section-icon">💧</span>
+        <span class="section-title">Вода</span>
+        <span class="section-src"><a href="https://www.tallinnavesi.ee" target="_blank">tallinnavesi.ee</a></span>
+      </div>
+      <div class="water-body">
+      <div class="water-row">
+        <span class="wlabel">Холодная вода</span>
+        <span class="wvalue">1.32 <span class="unit">€/м³</span></span>
+      </div>
+      <div class="water-row">
+        <span class="wlabel">Канализация</span>
+        <span class="wvalue">0.77 <span class="unit">€/м³</span></span>
+      </div>
+      <div class="water-divider"></div>
+      <div class="water-row total-row">
+        <span class="wlabel">Итого с НДС 22%</span>
+        <span class="wvalue accent">2.55 <span class="unit">€/м³</span></span>
+      </div></div>
+    </section>
+
+  </div>
+
+  <div class="footer">
+    <span>Сформировано: 12.06.2026 22:45</span>
+    <span>Тарифы Tallinna Vesi актуальны на 2025 г.</span>
+  </div>
+
+</body>
+</html>
