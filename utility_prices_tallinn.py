@@ -16,6 +16,7 @@ import json
 import re
 import urllib.request
 import datetime
+import pytz
 
 try:
     import requests
@@ -45,6 +46,9 @@ FUEL_LABELS = {
     "98":     {"icon": "🔥", "color": "#ff8c42"},
     "Diesel": {"icon": "🛢️",  "color": "#6ec6f5"},
 }
+
+# Временная зона Таллина
+TALLINN_TZ = pytz.timezone('Europe/Tallinn')
 
 
 # ══════════════════════════════════════════════════════════
@@ -184,7 +188,10 @@ def get_water():
 # ══════════════════════════════════════════════════════════
 
 def build_html(elec, fuel_data, fuel_source, water):
-    now = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+    # Получаем текущее время в временной зоне Таллина
+    now_tallinn = datetime.datetime.now(TALLINN_TZ)
+    now = now_tallinn.strftime("%d.%m.%Y %H:%M")
+    
     stations = list(fuel_data["stations"].keys())
     fuel_types = list(FUEL_LABELS.keys())
     cheapest = find_cheapest(fuel_data)
