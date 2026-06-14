@@ -232,6 +232,19 @@ def build_html(elec, fuel_data, fuel_source, water):
                 cells += f'<td class="{cls}"><span class="price-val">{price:.3f}</span> €{badge}</td>'
         table_rows += f"<tr>{cells}</tr>\n"
 
+    # ── условный блок таблицы и ссылки (только для 1182.ee) ──
+    if fuel_source == "1182.ee":
+        fuel_src_html = '<span class="section-src"><a href="' + FUEL_URL + '" target="_blank">1182.ee</a></span>'
+        fuel_table_html = (
+            '<div class="table-wrap"><table>'
+            '<thead><tr>' + th_html + '</tr></thead>'
+            '<tbody>' + table_rows + '</tbody>'
+            '</table></div>'
+        )
+    else:
+        fuel_src_html = ""
+        fuel_table_html = ""
+
     # ── вода ──
     water_rows = f"""
       <div class="water-row">
@@ -442,17 +455,10 @@ def build_html(elec, fuel_data, fuel_source, water):
       <div class="section-head">
         <span class="section-icon">⛽</span>
         <span class="section-title">Топливо · Таллин</span>
-        <span class="section-src">
-          <a href="{FUEL_URL if fuel_source == '1182.ee' else TEADMISEKS_URL}" target="_blank">{fuel_source}</a>
-        </span>
+        {fuel_src_html}
       </div>
       <div class="best-grid">{fuel_cards}</div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr>{th_html}</tr></thead>
-          <tbody>{table_rows}</tbody>
-        </table>
-      </div>
+      {fuel_table_html}
     </section>
 
     <!-- ── ВОДА ── -->
