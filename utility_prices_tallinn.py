@@ -98,8 +98,14 @@ def fetch_fuel_1182():
 
     stations = []
     for cell in header_cells[1:]:
-        lines = cell.get_text(separator="\n", strip=True).split("\n")
-        stations.append(lines[0].strip())
+        lines = [l.strip() for l in cell.get_text(separator="\n", strip=True).split("\n") if l.strip()]
+        name = lines[0] if lines else ""
+        # Отбрасываем мусорные ячейки: навигация, копирайт и т.п.
+        if name and len(name) <= 40 and not any(kw in name.lower() for kw in
+                ["login", "english", "eesti", "русски", "categories",
+                 "zip", "exchange", "statistics", "terms", "privacy",
+                 "nobel", "©", "search", "reg.", "e-post", "astu"]):
+            stations.append(name)
 
     result = {"date": date_str, "stations": {s: {} for s in stations}}
     for row in rows[1:]:
@@ -437,7 +443,6 @@ def build_html(elec, fuel_data, fuel_source, water):
         <span class="section-icon">⛽</span>
         <span class="section-title">Топливо · Таллин</span>
         <span class="section-src">
-          Данные от {fuel_data['date']} ·
           <a href="{FUEL_URL if fuel_source == '1182.ee' else TEADMISEKS_URL}" target="_blank">{fuel_source}</a>
         </span>
       </div>
