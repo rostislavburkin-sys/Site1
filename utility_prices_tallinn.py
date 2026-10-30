@@ -1,13 +1,13 @@
 """
-Цены на коммунальные услуги в Таллине
+Kommunaalteenuste hinnad Tallinnas
 ─────────────────────────────────────
-Электричество : dashboard.elering.ee  (реальное время)
-Топливо       : 1182.ee               (ежедневно)
-Вода          : фиксированные тарифы  Tallinna Vesi
+Elekter : dashboard.elering.ee  (reaalajas)
+Kütus   : 1182.ee               (iga päev)
+Vesi    : fikseeritud tariifid  Tallinna Vesi
 
-Использование:
-  python utility_prices_tallinn.py          → генерирует index.html
-  python utility_prices_tallinn.py --print  → вывод в консоль
+Kasutamine:
+  python utility_prices_tallinn.py          → genereerib index.html
+  python utility_prices_tallinn.py --print  → väljund konsooli
 """
 
 import sys
@@ -48,7 +48,7 @@ FUEL_LABELS = {
 
 
 # ══════════════════════════════════════════════════════════
-#  ЭЛЕКТРИЧЕСТВО
+#  ELEKTER
 # ══════════════════════════════════════════════════════════
 
 def fetch_electricity():
@@ -73,11 +73,11 @@ def fetch_electricity():
 
 
 # ══════════════════════════════════════════════════════════
-#  ТОПЛИВО
+#  KÜTUS
 # ══════════════════════════════════════════════════════════
 
 def fetch_fuel_1182():
-    """Парсит 1182.ee через requests + BeautifulSoup (точнее)."""
+    """Parsib 1182.ee requests + BeautifulSoup abil (täpsem)."""
     resp = requests.get(FUEL_URL, headers=HEADERS, timeout=10)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
@@ -91,7 +91,7 @@ def fetch_fuel_1182():
 
     table = soup.find("table")
     if not table:
-        raise ValueError("Таблица топлива не найдена.")
+        raise ValueError("Kütuse tabelit ei leitud.")
 
     rows = table.find_all("tr")
     header_cells = rows[0].find_all(["th", "td"])
@@ -100,7 +100,8 @@ def fetch_fuel_1182():
     for cell in header_cells[1:]:
         lines = [l.strip() for l in cell.get_text(separator="\n", strip=True).split("\n") if l.strip()]
         name = lines[0] if lines else ""
-        # Отбрасываем мусорные ячейки: навигация, копирайт и т.п.
+        # Eemaldame mittevajalikud lahtrid: navigatsioon, autoriõigus jms.
+        # NB: "русски" on märksõna lehe vene keele lingi filtreerimiseks – jäetud samaks.
         if name and len(name) <= 40 and not any(kw in name.lower() for kw in
                 ["login", "english", "eesti", "русски", "categories",
                  "zip", "exchange", "statistics", "terms", "privacy",
@@ -127,11 +128,12 @@ def fetch_fuel_1182():
 
 
 def fetch_fuel_teadmiseks():
-    """Запасной парсер teadmiseks.ee через urllib (без зависимостей)."""
+    """Varuparser teadmiseks.ee jaoks urllib abil (ilma sõltuvusteta)."""
     req = urllib.request.Request(TEADMISEKS_URL, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=10) as r:
         html = r.read().decode("utf-8", errors="ignore")
 
+    # NB: allolevad vene tekstid on lehe sisu otsimiseks (leht on vene keeles) – jäetud samaks.
     date_match = re.search(r'посл\.\s*обнов\.\s*([\d.]+)', html)
     date_str = date_match.group(1) if date_match else "?"
 
@@ -146,7 +148,7 @@ def fetch_fuel_teadmiseks():
         key = translate.get(name.strip(), name.strip())
         prices[key] = float(price.replace(",", "."))
 
-    # Представляем как один «виртуальный» источник
+    # Esitame ühe "virtuaalse" allikana
     return {
         "date": date_str,
         "stations": {"teadmiseks.ee": prices},
@@ -158,7 +160,7 @@ def fetch_fuel():
         try:
             return fetch_fuel_1182(), "1182.ee"
         except Exception as e:
-            print(f"  [fuel] 1182.ee недоступен ({e}), пробую teadmiseks.ee...")
+            print(f"  [kütus] 1182.ee pole kättesaadav ({e}), proovin teadmiseks.ee...")
     return fetch_fuel_teadmiseks(), "teadmiseks.ee"
 
 
@@ -174,7 +176,7 @@ def find_cheapest(fuel_data):
 
 
 # ══════════════════════════════════════════════════════════
-#  ВОДА  (Tallinna Vesi, фиксированный тариф)
+#  VESI  (Tallinna Vesi, fikseeritud tariif)
 # ══════════════════════════════════════════════════════════
 
 def get_water():
@@ -195,7 +197,7 @@ def build_html(elec, fuel_data, fuel_source, water):
     fuel_types = list(FUEL_LABELS.keys())
     cheapest = find_cheapest(fuel_data)
 
-    # ── карточки топлива ──
+    # ── kütusekaardid ──
     fuel_cards = ""
     for ft in fuel_types:
         if ft not in cheapest:
@@ -206,12 +208,12 @@ def build_html(elec, fuel_data, fuel_source, water):
           <div class="best-card">
             <div class="best-icon">{meta['icon']}</div>
             <div class="best-fuel" style="color:{meta['color']}">{ft}</div>
-            <div class="best-price">{info['price']:.3f}<span class="unit"> €/л</span></div>
+            <div class="best-price">{info['price']:.3f}<span class="unit"> €/l</span></div>
             <div class="best-station">{info['station']}</div>
           </div>"""
 
-    # ── строки таблицы топлива ──
-    th_html = "<th>Топливо</th>" + "".join(f"<th>{s}</th>" for s in stations)
+    # ── kütusetabeli read ──
+    th_html = "<th>Kütus</th>" + "".join(f"<th>{s}</th>" for s in stations)
     table_rows = ""
     for ft in fuel_types:
         meta = FUEL_LABELS[ft]
@@ -227,12 +229,12 @@ def build_html(elec, fuel_data, fuel_source, water):
                 cells += '<td class="price-cell">—</td>'
             else:
                 best = price == min_p
-                badge = '<span class="badge">лучшая</span>' if best else ""
+                badge = '<span class="badge">parim</span>' if best else ""
                 cls = "price-cell best-price-cell" if best else "price-cell"
                 cells += f'<td class="{cls}"><span class="price-val">{price:.3f}</span> €{badge}</td>'
         table_rows += f"<tr>{cells}</tr>\n"
 
-    # ── условный блок таблицы и ссылки (только для 1182.ee) ──
+    # ── tingimuslik tabeli ja lingi plokk (ainult 1182.ee jaoks) ──
     if fuel_source == "1182.ee":
         fuel_src_html = '<span class="section-src"><a href="' + FUEL_URL + '" target="_blank">1182.ee</a></span>'
         fuel_table_html = (
@@ -245,28 +247,28 @@ def build_html(elec, fuel_data, fuel_source, water):
         fuel_src_html = ""
         fuel_table_html = ""
 
-    # ── вода ──
+    # ── vesi ──
     water_rows = f"""
       <div class="water-row">
-        <span class="wlabel">Холодная вода</span>
-        <span class="wvalue">{water['cold']:.2f} <span class="unit">€/м³</span></span>
+        <span class="wlabel">Külm vesi</span>
+        <span class="wvalue">{water['cold']:.2f} <span class="unit">€/m³</span></span>
       </div>
       <div class="water-row">
-        <span class="wlabel">Канализация</span>
-        <span class="wvalue">{water['waste']:.2f} <span class="unit">€/м³</span></span>
+        <span class="wlabel">Kanalisatsioon</span>
+        <span class="wvalue">{water['waste']:.2f} <span class="unit">€/m³</span></span>
       </div>
       <div class="water-divider"></div>
       <div class="water-row total-row">
-        <span class="wlabel">Итого с НДС {int(water['vat']*100)}%</span>
-        <span class="wvalue accent">{water['total']:.2f} <span class="unit">€/м³</span></span>
+        <span class="wlabel">Kokku koos KM-ga {int(water['vat']*100)}%</span>
+        <span class="wvalue accent">{water['total']:.2f} <span class="unit">€/m³</span></span>
       </div>"""
 
     return f"""<!DOCTYPE html>
-<html lang="ru">
+<html lang="et">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тарифы — Таллин</title>
+  <title>Tariifid — Tallinn</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
     *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -288,7 +290,7 @@ def build_html(elec, fuel_data, fuel_source, water):
       padding: 2.5rem 1rem 5rem;
     }}
 
-    /* ── шапка ── */
+    /* ── päis ── */
     .page-header {{ max-width: 1000px; margin: 0 auto 3rem; }}
     .eyebrow {{
       font-size: .7rem; font-weight: 600; letter-spacing: .14em;
@@ -298,10 +300,10 @@ def build_html(elec, fuel_data, fuel_source, water):
     .page-title span {{ color: var(--accent); }}
     .page-meta {{ margin-top: .55rem; font-size: .8rem; color: var(--muted); }}
 
-    /* ── сетка секций ── */
+    /* ── sektsioonide ruudustik ── */
     .sections {{ max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }}
 
-    /* ── заголовок секции ── */
+    /* ── sektsiooni pealkiri ── */
     .section-head {{
       display: flex; align-items: baseline; gap: .75rem;
       margin-bottom: 1.25rem;
@@ -316,7 +318,7 @@ def build_html(elec, fuel_data, fuel_source, water):
     .section-src {{ margin-left: auto; font-size: .7rem; color: var(--border); }}
     .section-src a {{ color: var(--muted); text-decoration: underline dotted; }}
 
-    /* ══ ЭЛЕКТРИЧЕСТВО ══ */
+    /* ══ ELEKTER ══ */
     .elec-body {{ display: flex; gap: 1.5rem; flex-wrap: wrap; }}
     .elec-card {{
       background: var(--surface);
@@ -333,7 +335,7 @@ def build_html(elec, fuel_data, fuel_source, water):
     .elec-value.big {{ color: var(--accent); }}
     .elec-updated {{ margin-top: .9rem; font-size: .72rem; color: var(--muted); }}
 
-    /* ══ ТОПЛИВО ══ */
+    /* ══ KÜTUS ══ */
     .best-grid {{
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -385,7 +387,7 @@ def build_html(elec, fuel_data, fuel_source, water):
       vertical-align: middle;
     }}
 
-    /* ══ ВОДА ══ */
+    /* ══ VESI ══ */
     .water-body {{
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 12px; padding: 1.25rem 1.5rem;
@@ -404,7 +406,7 @@ def build_html(elec, fuel_data, fuel_source, water):
     .water-divider {{ border-top: 1px solid var(--border); margin: .35rem 0; }}
     .total-row .wlabel {{ color: var(--text); font-weight: 600; }}
 
-    /* общие */
+    /* üldine */
     .unit {{ font-size: .72em; color: var(--muted); }}
     .footer {{
       max-width: 1000px; margin: 3rem auto 0;
@@ -422,50 +424,50 @@ def build_html(elec, fuel_data, fuel_source, water):
 <body>
 
   <div class="page-header">
-    <div class="eyebrow">Таллин · Эстония</div>
-    <h1 class="page-title">Актуальные <span>тарифы</span></h1>
-    <p class="page-meta">Электричество, топливо и вода — данные на сегодня</p>
+    <div class="eyebrow">Tallinn · Eesti</div>
+    <h1 class="page-title">Kehtivad <span>tariifid</span></h1>
+    <p class="page-meta">Elekter, kütus ja vesi — tänased andmed</p>
   </div>
 
   <div class="sections">
 
-    <!-- ── ЭЛЕКТРИЧЕСТВО ── -->
+    <!-- ── ELEKTER ── -->
     <section>
       <div class="section-head">
         <span class="section-icon">⚡</span>
-        <span class="section-title">Электричество</span>
+        <span class="section-title">Elekter</span>
         <span class="section-src"><a href="https://dashboard.elering.ee" target="_blank">elering.ee</a></span>
       </div>
       <div class="elec-body">
         <div class="elec-card">
-          <div class="elec-label">Биржевая цена NPS</div>
-          <div class="elec-value big">{elec['price_mwh']:.2f}<span class="unit"> €/МВт·ч</span></div>
-          <div class="elec-updated">Обновлено: {elec['updated']}</div>
+          <div class="elec-label">NPS börsihind</div>
+          <div class="elec-value big">{elec['price_mwh']:.2f}<span class="unit"> €/MWh</span></div>
+          <div class="elec-updated">Uuendatud: {elec['updated']}</div>
         </div>
         <div class="elec-card">
-          <div class="elec-label">За киловатт-час</div>
-          <div class="elec-value">{elec['price_kwh']:.4f}<span class="unit"> €/кВт·ч</span></div>
-          <div class="elec-updated">Цена без НДС и сетевых сборов</div>
+          <div class="elec-label">Kilovatt-tunni hind</div>
+          <div class="elec-value">{elec['price_kwh']:.4f}<span class="unit"> €/kWh</span></div>
+          <div class="elec-updated">Hind ilma KM-ita ja võrgutasudeta</div>
         </div>
       </div>
     </section>
 
-    <!-- ── ТОПЛИВО ── -->
+    <!-- ── KÜTUS ── -->
     <section>
       <div class="section-head">
         <span class="section-icon">⛽</span>
-        <span class="section-title">Топливо · Таллин</span>
+        <span class="section-title">Kütus · Tallinn</span>
         {fuel_src_html}
       </div>
       <div class="best-grid">{fuel_cards}</div>
       {fuel_table_html}
     </section>
 
-    <!-- ── ВОДА ── -->
+    <!-- ── VESI ── -->
     <section>
       <div class="section-head">
         <span class="section-icon">💧</span>
-        <span class="section-title">Вода</span>
+        <span class="section-title">Vesi</span>
         <span class="section-src"><a href="https://www.tallinnavesi.ee" target="_blank">tallinnavesi.ee</a></span>
       </div>
       <div class="water-body">{water_rows}</div>
@@ -474,8 +476,8 @@ def build_html(elec, fuel_data, fuel_source, water):
   </div>
 
   <div class="footer">
-    <span>Сформировано: {now}</span>
-    <span>Тарифы Tallinna Vesi актуальны на 2025 г.</span>
+    <span>Koostatud: {now}</span>
+    <span>Tallinna Vesi tariifid kehtivad 2025. aastal</span>
   </div>
 
 </body>
@@ -483,24 +485,24 @@ def build_html(elec, fuel_data, fuel_source, water):
 
 
 # ══════════════════════════════════════════════════════════
-#  КОНСОЛЬ
+#  KONSOOL
 # ══════════════════════════════════════════════════════════
 
 def print_report(elec, fuel_data, water):
     cheapest = find_cheapest(fuel_data)
     fuel_types = list(FUEL_LABELS.keys())
     stations = list(fuel_data["stations"].keys())
-    print("\n⚡  ЭЛЕКТРИЧЕСТВО")
-    print(f"   {elec['price_mwh']:.2f} €/МВт·ч  ({elec['price_kwh']:.4f} €/кВт·ч)")
-    print(f"   Обновлено: {elec['updated']}")
-    print("\n⛽  ТОПЛИВО  (лучшие цены)")
+    print("\n⚡  ELEKTER")
+    print(f"   {elec['price_mwh']:.2f} €/MWh  ({elec['price_kwh']:.4f} €/kWh)")
+    print(f"   Uuendatud: {elec['updated']}")
+    print("\n⛽  KÜTUS  (parimad hinnad)")
     for ft in fuel_types:
         if ft in cheapest:
             info = cheapest[ft]
             print(f"   {ft:<8} {info['price']:.3f} € — {info['station']}")
-    print("\n💧  ВОДА (Tallinna Vesi)")
-    print(f"   Холодная: {water['cold']:.2f} €/м³   Канализация: {water['waste']:.2f} €/м³")
-    print(f"   Итого с НДС: {water['total']:.2f} €/м³")
+    print("\n💧  VESI (Tallinna Vesi)")
+    print(f"   Külm: {water['cold']:.2f} €/m³   Kanalisatsioon: {water['waste']:.2f} €/m³")
+    print(f"   Kokku koos KM-ga: {water['total']:.2f} €/m³")
     print()
 
 
@@ -511,26 +513,26 @@ def print_report(elec, fuel_data, water):
 if __name__ == "__main__":
     print_mode = "--print" in sys.argv
 
-    print("Загружаю данные...")
+    print("Laen andmeid...")
 
-    # электричество
+    # elekter
     try:
         print("  ⚡ elering.ee...")
         elec = fetch_electricity()
     except Exception as e:
-        print(f"  [elec] ошибка: {e}")
-        elec = {"price_mwh": 0, "price_kwh": 0, "updated": "недоступно"}
+        print(f"  [elekter] viga: {e}")
+        elec = {"price_mwh": 0, "price_kwh": 0, "updated": "pole saadaval"}
 
-    # топливо
+    # kütus
     try:
-        print("  ⛽ топливо...")
+        print("  ⛽ kütus...")
         fuel_data, fuel_source = fetch_fuel()
     except Exception as e:
-        print(f"  [fuel] ошибка: {e}")
+        print(f"  [kütus] viga: {e}")
         fuel_data = {"date": "?", "stations": {}}
         fuel_source = "?"
 
-    # вода
+    # vesi
     water = get_water()
 
     if print_mode:
@@ -539,4 +541,4 @@ if __name__ == "__main__":
         html = build_html(elec, fuel_data, fuel_source, water)
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             f.write(html)
-        print(f"✅ Готово → {os.path.abspath(OUTPUT_FILE)}")
+        print(f"✅ Valmis → {os.path.abspath(OUTPUT_FILE)}")
