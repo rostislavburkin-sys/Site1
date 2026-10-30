@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="et">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Тарифы — Таллин</title>
+  <title>Tariifid — Tallinn</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,7 +25,7 @@
       padding: 2.5rem 1rem 5rem;
     }
 
-    /* ── шапка ── */
+    /* ── päis ── */
     .page-header { max-width: 1000px; margin: 0 auto 3rem; }
     .eyebrow {
       font-size: .7rem; font-weight: 600; letter-spacing: .14em;
@@ -35,10 +35,10 @@
     .page-title span { color: var(--accent); }
     .page-meta { margin-top: .55rem; font-size: .8rem; color: var(--muted); }
 
-    /* ── сетка секций ── */
+    /* ── sektsioonide ruudustik ── */
     .sections { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 3rem; }
 
-    /* ── заголовок секции ── */
+    /* ── sektsiooni pealkiri ── */
     .section-head {
       display: flex; align-items: baseline; gap: .75rem;
       margin-bottom: 1.25rem;
@@ -53,7 +53,7 @@
     .section-src { margin-left: auto; font-size: .7rem; color: var(--border); }
     .section-src a { color: var(--muted); text-decoration: underline dotted; }
 
-    /* ══ ЭЛЕКТРИЧЕСТВО ══ */
+    /* ══ ELEKTER ══ */
     .elec-body { display: flex; gap: 1.5rem; flex-wrap: wrap; }
     .elec-card {
       background: var(--surface);
@@ -70,7 +70,7 @@
     .elec-value.big { color: var(--accent); }
     .elec-updated { margin-top: .9rem; font-size: .72rem; color: var(--muted); }
 
-    /* ══ ТОПЛИВО ══ */
+    /* ══ KÜTUS ══ */
     .best-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -122,7 +122,7 @@
       vertical-align: middle;
     }
 
-    /* ══ ВОДА ══ */
+    /* ══ VESI ══ */
     .water-body {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 12px; padding: 1.25rem 1.5rem;
@@ -141,7 +141,7 @@
     .water-divider { border-top: 1px solid var(--border); margin: .35rem 0; }
     .total-row .wlabel { color: var(--text); font-weight: 600; }
 
-    /* общие */
+    /* üldine */
     .unit { font-size: .72em; color: var(--muted); }
     .footer {
       max-width: 1000px; margin: 3rem auto 0;
@@ -159,91 +159,91 @@
 <body>
 
   <div class="page-header">
-    <div class="eyebrow">Таллин · Эстония</div>
-    <h1 class="page-title">Актуальные <span>тарифы</span></h1>
-    <p class="page-meta">Электричество, топливо и вода — данные на сегодня</p>
+    <div class="eyebrow">Tallinn · Eesti</div>
+    <h1 class="page-title">Kehtivad <span>tariifid</span></h1>
+    <p class="page-meta">Elekter, kütus ja vesi — tänased andmed</p>
   </div>
 
   <div class="sections">
 
-    <!-- ── ЭЛЕКТРИЧЕСТВО ── -->
+    <!-- ── ELEKTER ── -->
     <section>
       <div class="section-head">
         <span class="section-icon">⚡</span>
-        <span class="section-title">Электричество</span>
+        <span class="section-title">Elekter</span>
         <span class="section-src"><a href="https://dashboard.elering.ee" target="_blank">elering.ee</a></span>
       </div>
       <div class="elec-body">
         <div class="elec-card">
-          <div class="elec-label">Биржевая цена NPS</div>
-          <div class="elec-value big">250.37<span class="unit"> €/МВт·ч</span></div>
-          <div class="elec-updated">Обновлено: 30.10.2026 10:15</div>
+          <div class="elec-label">NPS börsihind</div>
+          <div class="elec-value big">230.75<span class="unit"> €/MWh</span></div>
+          <div class="elec-updated">Uuendatud: 30.10.2026 14:30</div>
         </div>
         <div class="elec-card">
-          <div class="elec-label">За киловатт-час</div>
-          <div class="elec-value">0.2504<span class="unit"> €/кВт·ч</span></div>
-          <div class="elec-updated">Цена без НДС и сетевых сборов</div>
+          <div class="elec-label">Kilovatt-tunni hind</div>
+          <div class="elec-value">0.2308<span class="unit"> €/kWh</span></div>
+          <div class="elec-updated">Hind ilma KM-ita ja võrgutasudeta</div>
         </div>
       </div>
     </section>
 
-    <!-- ── ТОПЛИВО ── -->
+    <!-- ── KÜTUS ── -->
     <section>
       <div class="section-head">
         <span class="section-icon">⛽</span>
-        <span class="section-title">Топливо · Таллин</span>
+        <span class="section-title">Kütus · Tallinn</span>
         
       </div>
       <div class="best-grid">
           <div class="best-card">
             <div class="best-icon">⛽</div>
             <div class="best-fuel" style="color:#f5c842">95</div>
-            <div class="best-price">1.919<span class="unit"> €/л</span></div>
+            <div class="best-price">1.919<span class="unit"> €/l</span></div>
             <div class="best-station">teadmiseks.ee</div>
           </div>
           <div class="best-card">
             <div class="best-icon">🔥</div>
             <div class="best-fuel" style="color:#ff8c42">98</div>
-            <div class="best-price">1.979<span class="unit"> €/л</span></div>
+            <div class="best-price">1.979<span class="unit"> €/l</span></div>
             <div class="best-station">teadmiseks.ee</div>
           </div>
           <div class="best-card">
             <div class="best-icon">🛢️</div>
             <div class="best-fuel" style="color:#6ec6f5">Diesel</div>
-            <div class="best-price">2.112<span class="unit"> €/л</span></div>
+            <div class="best-price">2.112<span class="unit"> €/l</span></div>
             <div class="best-station">teadmiseks.ee</div>
           </div></div>
       
     </section>
 
-    <!-- ── ВОДА ── -->
+    <!-- ── VESI ── -->
     <section>
       <div class="section-head">
         <span class="section-icon">💧</span>
-        <span class="section-title">Вода</span>
+        <span class="section-title">Vesi</span>
         <span class="section-src"><a href="https://www.tallinnavesi.ee" target="_blank">tallinnavesi.ee</a></span>
       </div>
       <div class="water-body">
       <div class="water-row">
-        <span class="wlabel">Холодная вода</span>
-        <span class="wvalue">1.32 <span class="unit">€/м³</span></span>
+        <span class="wlabel">Külm vesi</span>
+        <span class="wvalue">1.32 <span class="unit">€/m³</span></span>
       </div>
       <div class="water-row">
-        <span class="wlabel">Канализация</span>
-        <span class="wvalue">0.77 <span class="unit">€/м³</span></span>
+        <span class="wlabel">Kanalisatsioon</span>
+        <span class="wvalue">0.77 <span class="unit">€/m³</span></span>
       </div>
       <div class="water-divider"></div>
       <div class="water-row total-row">
-        <span class="wlabel">Итого с НДС 22%</span>
-        <span class="wvalue accent">2.55 <span class="unit">€/м³</span></span>
+        <span class="wlabel">Kokku koos KM-ga 22%</span>
+        <span class="wvalue accent">2.55 <span class="unit">€/m³</span></span>
       </div></div>
     </section>
 
   </div>
 
   <div class="footer">
-    <span>Сформировано: 30.10.2026 10:25</span>
-    <span>Тарифы Tallinna Vesi актуальны на 2025 г.</span>
+    <span>Koostatud: 30.10.2026 14:42</span>
+    <span>Tallinna Vesi tariifid kehtivad 2025. aastal</span>
   </div>
 
 </body>
